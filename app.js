@@ -4,6 +4,8 @@ const SUPABASE_URL = 'https://yrqscwhoqgznswocevfl.supabase.co/storage/v1/object
 
 let dashboardData = null;
 let historyData = null;
+let selectedModel = null;
+let forecastChart = null;
 
 // Kütüphane maksimum kapasitesi — yüzdelik dilimleri ve renk bucket'larını buna göre hesapla
 const MAX_CAPACITY = 4500; 
@@ -33,6 +35,9 @@ async function loadData() {
     document.getElementById('last-updated').textContent = 
       'Son Güncelleme: ' + updateTime.toLocaleString('tr-TR');
     
+    // Model seçiciyi başlat (en düşük MAE'li model otomatik seçilir)
+    initModelSelector();
+    
     // Grafikleri çizdir
     renderForecast();
     renderTimeline();
@@ -51,11 +56,20 @@ function renderForecast() {
     return;
   }
   
-  const chart = echarts.init(chartDom);
+  if (!forecastChart) {
+    forecastChart = echarts.init(chartDom);
+    window.addEventListener('resize', () => forecastChart.resize());
+  }
   
   // Model verilerini güvenli bir şekilde filtrele
   console.log('🔍 Forecast ham modeller:', dashboardData.models.map(m => ({ model: m.model, available: m.available, hasForecast: !!m.forecast, hasPredictions: !!(m.predictions && m.predictions.length) })));
-  const models = dashboardData.models.filter(m => m.available && (m.forecast || (m.predictions && m.predictions.length)));
+  let models = dashboardData.models.filter(m => m.available && (m.forecast || (m.predictions && m.predictions.length)));
+  
+  // Sadece seçili modeli göster
+  if (selectedModel) {
+    const filtered = models.filter(m => m.model === selectedModel);
+    if (filtered.length > 0) models = filtered;
+  }
   
   if (models.length === 0) {
     console.warn('⚠️ Çizilecek uygun tahmin modeli bulunamadı.');
@@ -144,12 +158,11 @@ function renderForecast() {
   console.log('🎨 Forecast final option: series=' + series.length + ', timestamps=' + timestamps.length);
   console.log('🎨 Chart container boyutu:', chartDom.offsetWidth, 'x', chartDom.offsetHeight);
   try {
-    chart.setOption(option);
+    forecastChart.setOption(option, true);
     console.log('✅ Forecast chart setOption başarılı');
   } catch(e) {
     console.error('❌ Forecast setOption hatası:', e);
   }
-  window.addEventListener('resize', () => chart.resize());
 }
 
 function renderTimeline() {
@@ -312,7 +325,7 @@ function renderArena() {
       label: {
         show: true,
         position: 'right',
-        formatter: '{c}',
+        formatter: function(params) { return params.value.toFixed(2); },
         color: '#fff',
         fontWeight: 'bold'
       }
@@ -321,6 +334,42 @@ function renderArena() {
   
   chart.setOption(option);
   window.addEventListener('resize', () => chart.resize());
+}
+
+function initModelSelector() {
+  const container = document.getElementById('forecast-model-selector');
+  if (!container) return;
+  
+  const models = dashboardData.models.filter(m => m.available && m.mae);
+  if (models.length === 0) return;
+  
+  // MAE'ye göre artan sırala (düşük MAE = daha başarılı)
+  models.sort((a, b) => a.mae - b.mae);
+  const bestModel = models[0].model;
+  selectedModel = bestModel;
+  
+  // Radio buton kartlarını oluştur
+  container.innerHTML = models.map((m, i) => `
+    <label class="model-radio ${m.model === bestModel ? 'selected' : ''}">
+      <input type="radio" name="model-select" value="${m.model}" ${m.model === bestModel ? 'checked' : ''}>
+      <span class="model-name">${m.model}</span>
+      <span class="model-mae">MAE: ${m.mae.toFixed(1)}</span>
+    </label>
+  `).join('');
+  
+  // Radio değişikliğini dinle
+  container.querySelectorAll('input[name="model-select"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        selectedModel = e.target.value;
+        // Seçili kartı görsel olarak işaretle
+        container.querySelectorAll('.model-radio').forEach(label => label.classList.remove('selected'));
+        e.target.closest('.model-radio').classList.add('selected');
+        // Grafiği yeniden çiz
+        renderForecast();
+      }
+    });
+  });
 }
 
 // Dom hazır olduğunda tetikle
