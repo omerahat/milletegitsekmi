@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MK Kütüphane Tahminleri</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="top-nav">
+    <h1>📚 MK Kütüphane Doluluk Tahminleri</h1>
+    <span id="last-updated">Son güncelleme: --</span>
+  </nav>
+
+  <main class="scroll-container">
+    <section id="forecast" class="section">
+      <div class="section-header">
+        <h2>Gelecek 24 Saat</h2>
+        <p class="subtitle">Modellerin tahminleri ve doluluk seviyeleri</p>
+      </div>
+      <div id="forecast-chart" class="chart"></div>
+    </section>
+
+    <section id="timeline" class="section">
+      <div class="section-header">
+        <h2>⏱️ Zaman Yolculuğu</h2>
+        <p class="subtitle">Model gelişimi: veri arttıkça hata payı düşüyor</p>
+      </div>
+      <div class="controls">
+        <button id="play-btn" class="btn">▶ Oynat</button>
+        <input type="range" id="timeline-slider" min="0" max="100" value="100">
+      </div>
+      <div id="timeline-chart" class="chart"></div>
+    </section>
+
+    <section id="arena" class="section">
+      <div class="section-header">
+        <h2>🏆 Model Arenası</h2>
+        <p class="subtitle">Algoritmaların MAE performans karşılaştırması</p>
+      </div>
+      <div id="arena-chart" class="chart"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>MK Kütüphane Talep Tahmin Sistemi · Veri kaynağı: Supabase</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
