@@ -77,15 +77,20 @@ function renderForecast() {
     return;
   }
   
-  // Zaman damgalarını al (Eğer forecast objesi yoksa dashboardData.timestamp array'ini kullan)
+  // Zaman damgalarını al
+  // Forecast varsa forecast timestamps'lerini kullan (gelecek 24 saat),
+  // yoksa dashboardData.timestamp (test seti) üzerinden göster
   let timestamps = [];
-  if (dashboardData.timestamp) {
+  if (models[0]?.forecast?.timestamps) {
+    timestamps = models[0].forecast.timestamps.map(t => {
+      const d = new Date(t);
+      return isNaN(d) ? t : d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    });
+  } else if (dashboardData.timestamp) {
     timestamps = dashboardData.timestamp.map(t => {
       const d = new Date(t);
       return isNaN(d) ? t : d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
     });
-  } else if (models[0]?.forecast?.timestamps) {
-    timestamps = models[0].forecast.timestamps.map(t => new Date(t).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }));
   }
   
   // İlk modelin forecast yapısını konsola dök
