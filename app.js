@@ -8,7 +8,19 @@ let selectedModel = null;
 let forecastChart = null;
 
 // Kütüphane maksimum kapasitesi — yüzdelik dilimleri ve renk bucket'larını buna göre hesapla
-const MAX_CAPACITY = 4500; 
+const MAX_CAPACITY = 4500;
+
+// Modellerin kisa aciklamalari (frontend sabit sozluk)
+const MODEL_DESCRIPTIONS = {
+  'NaiveBaseline': 'Basit kiyas: geçen saatin değerini bu saat için tahmin eder.',
+  'RandomForest': 'Birçok karar ağacinin oylamasiyla tahmin üretir.',
+  'XGBoost': 'Hizli ve popüler gradient boosting algoritmasi.',
+  'LightGBM': 'Microsoft\'un hafif ve hizli gradient boosting kütüphanesi.',
+  'GradientBoosting': 'Scikit-learn ile gelen klasik gradient boosting modeli.',
+  'CatBoost': 'Kategorik özellikleri iyi isleyen gradient boosting modeli.',
+  'EBM': 'Microsoft\'un yorumlanabilir boosting modeli.',
+  'Prophet': 'Facebook\'un trend ve mevsimsellik bazli zaman serisi modeli.'
+};
 
 async function loadData() {
   try {
@@ -30,18 +42,19 @@ async function loadData() {
     console.log('✅ Dashboard Verisi:', dashboardData);
     console.log('✅ Geçmiş Verisi:', historyData);
     
-    // Zaman damgası kontrolü
+    // Zaman damgasi ve geri sayim kontrolü
     const updateTime = dashboardData.generated_at ? new Date(dashboardData.generated_at) : new Date();
-    document.getElementById('last-updated').textContent = 
-      'Son Güncelleme: ' + updateTime.toLocaleString('tr-TR');
-    
+    startUpdateCountdown(updateTime);
+
     // Model seçiciyi başlat (en düşük MAE'li model otomatik seçilir)
     initModelSelector();
-    
+
     // Grafikleri çizdir
+    renderToday();
     renderForecast();
     renderTimeline();
     renderArena();
+    renderModelCards();
   } catch (e) {
     console.error('❌ Veri yükleme hatası detayları:', e);
     document.getElementById('last-updated').textContent = 'Veri yüklenemedi. Konsolu (F12) kontrol et.';
@@ -168,6 +181,90 @@ function renderForecast() {
   } catch(e) {
     console.error('❌ Forecast setOption hatası:', e);
   }
+}
+
+function renderToday() {
+  const chartDom = document.getElementById('today-chart');
+  if (!chartDom || !dashboardData || !dashboardData.today) {
+    console.warn('⚠️ Bugün grafiği: veri eksik', dashboardData);
+    if (chartDom) chartDom.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;font-size:1.2rem;">⏳ Bugün verisi bekleniyor...</div>';
+    return;
+  }
+
+  const chart = echarts.init(chartDom);
+  const today = dashboardData.today;
+
+  const series = [];
+
+  // Gerçek değerler (beyaz, kalın, ön planda)
+  series.push({
+    name: 'Gerçek',
+    type: 'line',
+    data: today.actuals,
+    lineStyle: { width: 4, color: '#ffffff' },
+    itemStyle: { color: '#ffffff' },
+    symbol: 'circle',
+    symbolSize: 8,
+    connectNulls: false,
+    z: 10
+  });
+
+  // Model tahminleri (kesikli çizgiler)
+  const colors = ['#4a9eff', '#52c41a', '#faad14', '#fa8c16', '#f5222d', '#7c4dff', '#ff6b35', '#13c2c2'];
+  const models = today.models || [];
+
+  models.forEach((m, i) => {
+    const color = colors[i % colors.length];
+    series.push({
+      name: m.model,
+      type: 'line',
+      smooth: true,
+      data: m.values,
+      lineStyle: { width: 2, type: 'dashed', color: color },
+      itemStyle: { color: color },
+      symbol: 'circle',
+      symbolSize: 5,
+      connectNulls: false
+    });
+  });
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#1f1f2e',
+      textStyle: { color: '#fff' },
+      valueFormatter: (v) => v === undefined || v === null ? '-' : Math.round(v)
+    },
+    legend: {
+      data: series.map(s => s.name),
+      textStyle: { color: '#ccc' },
+      top: '5%'
+    },
+    grid: { left: '4%', right: '4%', bottom: '5%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: today.hours,
+      axisLine: { lineStyle: { color: '#666' } },
+      axisLabel: { color: '#aaa' }
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Kişi Sayısı',
+      axisLine: { lineStyle: { color: '#666' } },
+      axisLabel: { color: '#aaa', formatter: function(v) { return Math.round(v); } },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }
+    },
+    series: series
+  };
+
+  try {
+    chart.setOption(option, true);
+    console.log('✅ Bugün chart setOption başarılı');
+  } catch(e) {
+    console.error('❌ Bugün setOption hatası:', e);
+  }
+
+  window.addEventListener('resize', () => chart.resize());
 }
 
 function renderTimeline() {
@@ -341,6 +438,53 @@ function renderArena() {
   window.addEventListener('resize', () => chart.resize());
 }
 
+function renderModelCards() {
+  const container = document.getElementById('model-cards');
+  if (!container || !dashboardData || !dashboardData.models) {
+    if (container) container.innerHTML = '<p class="empty-msg">Model verisi yüklenemedi.</p>';
+    return;
+  }
+
+  const models = dashboardData.models.slice().sort((a, b) => (a.mae || Infinity) - (b.mae || Infinity));
+  const bestModel = models.find(m => m.available && m.model !== 'NaiveBaseline');
+
+  container.innerHTML = models.map(m => {
+    const isBest = bestModel && m.model === bestModel.model;
+    const statusClass = m.available ? 'status-ok' : 'status-error';
+    const statusText = m.available ? '✅ Kullanılabilir' : '❌ Hata';
+    const desc = MODEL_DESCRIPTIONS[m.model] || 'Model açiklamasi bulunmuyor.';
+
+    return `
+      <div class="model-card ${isBest ? 'best' : ''}">
+        <div class="model-card-header">
+          <h3>${m.model}</h3>
+          ${isBest ? '<span class="best-badge">🏆 En İyi</span>' : ''}
+        </div>
+        <p class="model-desc">${desc}</p>
+        <div class="model-metrics">
+          <div class="metric">
+            <span class="metric-label">MAE</span>
+            <span class="metric-value">${m.available ? m.mae.toFixed(2) : '—'}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">RMSE</span>
+            <span class="metric-value">${m.available ? m.rmse.toFixed(2) : '—'}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">R²</span>
+            <span class="metric-value">${m.available ? m.r2.toFixed(4) : '—'}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Eğitim</span>
+            <span class="metric-value">${m.available ? m.train_time_s.toFixed(1) + 's' : '—'}</span>
+          </div>
+        </div>
+        <div class="model-status ${statusClass}">${statusText}</div>
+      </div>
+    `;
+  }).join('');
+}
+
 function initModelSelector() {
   const container = document.getElementById('forecast-model-selector');
   if (!container) return;
@@ -375,6 +519,35 @@ function initModelSelector() {
       }
     });
   });
+}
+
+function startUpdateCountdown(lastUpdateTime) {
+  const lastEl = document.getElementById('last-updated');
+  const nextEl = document.getElementById('next-update');
+  if (!lastEl || !nextEl) return;
+
+  function update() {
+    const now = new Date();
+    const diffMin = Math.floor((now - lastUpdateTime) / 60000);
+
+    if (diffMin < 1) {
+      lastEl.textContent = 'Son güncelleme: Az önce';
+    } else if (diffMin < 60) {
+      lastEl.textContent = `Son güncelleme: ${diffMin} dk önce`;
+    } else {
+      const diffHour = Math.floor(diffMin / 60);
+      lastEl.textContent = `Son güncelleme: ${diffHour} saat önce`;
+    }
+
+    // Pipeline saatlik calisiyor: bir sonraki tam saat
+    const nextHour = new Date(now);
+    nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
+    const remainingMin = Math.max(0, Math.ceil((nextHour - now) / 60000));
+    nextEl.textContent = `Sonraki tahmin: ~${remainingMin} dk sonra`;
+  }
+
+  update();
+  setInterval(update, 60000);
 }
 
 // Dom hazır olduğunda tetikle

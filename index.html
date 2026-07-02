@@ -10,10 +10,21 @@
 <body>
   <nav class="top-nav">
     <h1>📚 MK Kütüphane Doluluk Tahminleri</h1>
-    <span id="last-updated">Son güncelleme: --</span>
+    <div class="nav-status">
+      <span id="last-updated">Son güncelleme: --</span>
+      <span id="next-update">Sonraki tahmin: --</span>
+    </div>
   </nav>
 
   <main class="scroll-container">
+    <section id="today" class="section">
+      <div class="section-header">
+        <h2>📅 Bugün</h2>
+        <p class="subtitle">Gerçek doluluk ve model tahminleri (00:00 – 23:00)</p>
+      </div>
+      <div id="today-chart" class="chart"></div>
+    </section>
+
     <section id="forecast" class="section">
       <div class="section-header">
         <h2>Gelecek 24 Saat</h2>
@@ -41,6 +52,14 @@
         <p class="subtitle">Algoritmaların MAE performans karşılaştırması</p>
       </div>
       <div id="arena-chart" class="chart"></div>
+    </section>
+
+    <section id="models" class="section">
+      <div class="section-header">
+        <h2>📦 Modeller</h2>
+        <p class="subtitle">Kullanılan algoritmalar ve performansları</p>
+      </div>
+      <div id="model-cards" class="model-cards"></div>
     </section>
   </main>
 

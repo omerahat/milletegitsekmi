@@ -194,6 +194,130 @@ body {
   background: rgba(74, 158, 255, 0.12);
 }
 
+/* Nav status (son guncelleme + sonraki tahmin) */
+.nav-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.nav-status span {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Model kartlari */
+.model-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.model-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.model-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+.model-card.best {
+  border-color: var(--green);
+  box-shadow: 0 0 20px rgba(82, 196, 26, 0.15);
+}
+
+.model-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.model-card-header h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.best-badge {
+  background: var(--green);
+  color: var(--bg-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+.model-desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  min-height: 2.7em;
+}
+
+.model-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 0.6rem 0.3rem;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+.metric-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.model-status {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4rem 0;
+  border-radius: 6px;
+}
+
+.status-ok {
+  background: rgba(82, 196, 26, 0.1);
+  color: var(--green);
+}
+
+.status-error {
+  background: rgba(245, 34, 45, 0.1);
+  color: var(--red);
+}
+
+.empty-msg {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-top: 2rem;
+}
+
 .footer {
   text-align: center;
   padding: 2rem;
