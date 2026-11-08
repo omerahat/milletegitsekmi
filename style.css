@@ -333,3 +333,20 @@ body {
     min-height: 300px;
   }
 }
+
+/* Public current-observation MVP */
+.scroll-container { height: auto; overflow: visible; scroll-snap-type: none; }
+.section { min-height: auto; padding-top: 3rem; }
+#today { min-height: 80vh; }
+.unavailable { gap: 1rem; }
+.unavailable .btn { align-self: flex-start; cursor: not-allowed; opacity: .6; }
+.occupancy { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 700; }
+.status-warning { color: var(--yellow); }
+#status { padding: .75rem; border-radius: 8px; }
+#today-chart { flex: none; height: 350px; margin: 1.5rem 0; }
+@media (max-width: 768px) {
+  .top-nav { position: static; flex-direction: column; align-items: flex-start; padding: 1rem; }
+  .nav-status { align-items: flex-start; }
+  .scroll-container { padding-top: 0; }
+  .section { padding: 2rem 1rem; }
+}

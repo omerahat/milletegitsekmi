@@ -1,0 +1,23 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "D16 current occupancy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "total_count", "observed_at", "published_at", "source", "rooms"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "source": {"const": "d16"},
+    "total_count": {"type": "integer", "minimum": 0},
+    "observed_at": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "published_at": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "rooms": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "arastirma_salonu": {"type": "integer", "minimum": 0},
+        "arastirma_salonu_sag": {"type": "integer", "minimum": 0},
+        "arastirma_salonu_sol": {"type": "integer", "minimum": 0},
+        "nadir_eserler_salonu": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
