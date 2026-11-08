@@ -1,26 +1,53 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="description" content="Millet Kütüphanesi için son ölçülen doluluk ve salon bilgileri. Ölçüm zamanını kontrol ederek ziyaretinizi planlayın.">
   <title>Millet'e Gitsek Mi? — Kütüphane Doluluğu</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./style.css">
   <script defer src="./app.js"></script>
 </head>
 <body>
-  <nav class="top-nav"><h1>📚 Millet'e Gitsek Mi?</h1><div class="nav-status"><span id="last-updated">Son gözlem: —</span><span>Her dakika kontrol edilir</span></div></nav>
+  <a class="skip-link" href="#today">Doluluk bilgisine geç</a>
+  <header class="top-nav">
+    <h1><span aria-hidden="true">📚</span> Millet'e Gitsek Mi?</h1>
+    <p class="subtitle">Kütüphaneye gitmeden önce bir göz at.</p>
+  </header>
   <main class="scroll-container">
-    <section id="today" class="section">
-      <div class="section-header"><h2>Son ölçülen doluluk</h2><p class="subtitle">D16 tarafından toplanan gerçek gözlem</p></div>
-      <p id="status" role="status" aria-live="polite">Veriler yükleniyor…</p>
+    <section id="today" class="section" aria-labelledby="today-title" tabindex="-1">
+      <div class="section-header">
+        <div><p class="eyebrow">MİLLET KÜTÜPHANESİ</p><h2 id="today-title">Son ölçülen doluluk</h2></div>
+        <span id="freshness" class="badge">Ölçüm yükleniyor</span>
+      </div>
       <p id="occupancy" class="occupancy">—</p>
-      <p id="percentage">Yapılandırılmış kapasite tahmini: 4.500 kişi</p>
-      <div id="today-chart" class="chart" aria-label="Son gözlemde salon dolulukları"></div>
-      <p class="subtitle">Yalnızca son gözlem gösterilir. Bugünün saatlik geçmişi henüz yayımlanmıyor.</p>
+      <p id="percentage" class="subtitle">Doluluk bilgisi bekleniyor.</p>
+      <div class="observation-meta">
+        <time id="last-updated">Son gözlem: —</time>
+        <span id="observation-age">Ölçüm zamanı bekleniyor</span>
+      </div>
+      <div class="refresh-row">
+        <p id="status" role="status" aria-live="polite" aria-atomic="true">Veriler yükleniyor…</p>
+        <button id="refresh" class="btn" type="button" disabled>Kontrol ediliyor…</button>
+      </div>
+      <noscript><p class="status-warning">Doluluk bilgilerini görmek için JavaScript'i etkinleştirin.</p></noscript>
+      <div class="rooms-header"><h3 id="rooms-title">Salonlara göre kişi sayısı</h3><p class="subtitle">Son gözlemde bildirilen salonlar</p></div>
+      <div id="today-chart" class="chart" role="group" aria-labelledby="rooms-title">
+        <p id="rooms-empty" class="subtitle">Salon ayrıntıları yükleniyor…</p>
+        <div id="room-arastirma_salonu" class="room" hidden><div class="room-label"><span>Araştırma</span><strong id="room-arastirma_salonu-count">—</strong></div><meter id="room-arastirma_salonu-meter" min="0" max="1" value="0" aria-hidden="true"></meter></div>
+        <div id="room-arastirma_salonu_sag" class="room" hidden><div class="room-label"><span>Araştırma sağ</span><strong id="room-arastirma_salonu_sag-count">—</strong></div><meter id="room-arastirma_salonu_sag-meter" min="0" max="1" value="0" aria-hidden="true"></meter></div>
+        <div id="room-arastirma_salonu_sol" class="room" hidden><div class="room-label"><span>Araştırma sol</span><strong id="room-arastirma_salonu_sol-count">—</strong></div><meter id="room-arastirma_salonu_sol-meter" min="0" max="1" value="0" aria-hidden="true"></meter></div>
+        <div id="room-nadir_eserler_salonu" class="room" hidden><div class="room-label"><span>Nadir eserler</span><strong id="room-nadir_eserler_salonu-count">—</strong></div><meter id="room-nadir_eserler_salonu-meter" min="0" max="1" value="0" aria-hidden="true"></meter></div>
+      </div>
+      <p class="data-note">Salonlar toplam doluluğun tamamını kapsamayabilir. Çubuklar salonlardaki kişi sayılarını karşılaştırır; salon kapasitesini göstermez.</p>
+      <p class="data-note">Her dakika yeni veri kontrol edilir; bu, yeni bir ölçüm yayımlandığı anlamına gelmez. Saatlik geçmiş henüz yayımlanmıyor.</p>
     </section>
-    <section id="forecast" class="section unavailable"><div class="section-header"><h2>Tahminler yakında</h2><p class="subtitle">Forecast coming soon</p></div><p>Henüz hiçbir ML modeli üretim kalite eşiğini geçmedi. Tahmin yayımlanmıyor.</p></section>
-    <section id="arena" class="section unavailable"><div class="section-header"><h2>Model Arenası</h2></div><p>Şu anda kullanılamıyor. Doğrulanmış sonuçlar hazır olduğunda açılacak.</p><button class="btn" disabled>Model seçimi kullanılamıyor</button></section>
+    <div class="upcoming-grid">
+      <section id="forecast" class="section unavailable" aria-labelledby="forecast-title"><span class="eyebrow">YAKINDA</span><h2 id="forecast-title">Doluluk tahminleri</h2><p>Henüz hiçbir ML modeli üretim kalite eşiğini geçmedi. Doğrulanmış tahminler hazır olduğunda burada gösterilecek.</p><p class="data-note">Şimdilik ziyaretinizi son gözlemi ve ölçüm zamanını dikkate alarak planlayabilirsiniz.</p></section>
+      <section id="arena" class="section unavailable" aria-labelledby="arena-title"><span class="eyebrow">HENÜZ KULLANILAMIYOR</span><h2 id="arena-title">Model Arenası</h2><p>Doğrulanmış model sonuçları henüz yayımlanmadı. Model karşılaştırma ve seçim sonuçlar hazır olduğunda açılacak.</p></section>
+    </div>
   </main>
   <footer class="footer">Veri kaynağı: D16 gözlem kaydı · Saat dilimi: Europe/Istanbul</footer>
 </body>
