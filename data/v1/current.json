@@ -1,8 +1,8 @@
 {
   "schema_version": "1",
-  "total_count": 34,
-  "observed_at": "2026-11-09T06:47:11Z",
-  "published_at": "2026-11-09T06:47:41Z",
+  "total_count": 40,
+  "observed_at": "2026-11-09T07:02:10Z",
+  "published_at": "2026-11-09T07:02:41Z",
   "source": "d16",
   "rooms": {
     "arastirma_salonu": 0,
