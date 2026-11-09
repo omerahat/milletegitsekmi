@@ -1,13 +1,13 @@
 {
   "schema_version": "1",
-  "total_count": 1851,
-  "observed_at": "2026-11-09T14:32:11Z",
-  "published_at": "2026-11-09T14:32:41Z",
+  "total_count": 1885,
+  "observed_at": "2026-11-09T14:47:11Z",
+  "published_at": "2026-11-09T14:47:42Z",
   "source": "d16",
   "rooms": {
     "arastirma_salonu": 0,
-    "arastirma_salonu_sag": 57,
-    "arastirma_salonu_sol": 186,
-    "nadir_eserler_salonu": 161
+    "arastirma_salonu_sag": 52,
+    "arastirma_salonu_sol": 190,
+    "nadir_eserler_salonu": 155
   }
 }
