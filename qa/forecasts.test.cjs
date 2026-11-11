@@ -134,3 +134,38 @@ test('independent window contracts preserve selected model and reject nested cor
   }
 });
 module.exports = { forecast, arena, unavailable, multiForecast };
+
+test('dynamic forecast axis includes the observation with proportional padding', () => {
+  const [low, high] = context.chartDomain([1000, 1300, 1200]);
+  assert(low > 0 && low < 1000 && high > 1300);
+  const flat = context.chartDomain([0, 0]);
+  assert(flat[0] === 0 && flat[1] > 0);
+});
+test('preferred forecast only falls back when the v2 artifact is absent', async () => {
+  vm.runInContext(`fetchPublicArtifact = async name => { if (name === 'forecast-5min') { const error = new Error('missing'); error.status = 404; throw error; } return legacyFixture; };`, context);
+  context.legacyFixture = forecast();
+  assert.equal(await context.loadPreferredForecast(), context.legacyFixture);
+  vm.runInContext(`fetchPublicArtifact = async () => ({schema_version:'99'});`, context);
+  await assert.rejects(context.loadPreferredForecast());
+});
+function fiveMinuteForecast() {
+  const origin = Date.now() - 1000;
+  const first = (Math.floor(origin / 300000) + 1) * 300000;
+  return {schema_version:'2',granularity_minutes:5,forecast_id:'a'.repeat(24),generated_at:new Date(origin).toISOString(),observed_at:new Date(origin-60000).toISOString(),observed_occupancy:1100,readiness:{ready:true,reasons:[]},freshness:{source_age_seconds:60,max_source_age_seconds:900},warnings:[],windows:Object.fromEntries([1,3,6,12,24].map(h=>[String(h),{horizon_hours:h,status:'available',method:'PreviousDay',model_version:'five-minute-v1',fallback_reason:null,predictions:Array.from({length:h*12},(_,i)=>({target_timestamp:new Date(first+i*300000).toISOString(),interval_start:new Date(first+i*300000).toISOString(),interval_end:new Date(first+(i+1)*300000).toISOString(),predicted_occupancy:1000+i,step:i+1,granularity_minutes:5}))}]))};
+}
+test('v2 validates every horizon and rejects fabricated timing, values and nested fields', () => {
+  assert.equal(context.validateFiveMinuteForecast(fiveMinuteForecast()).windows['24'].predictions.length,288);
+  for(const mutate of [v=>v.windows['1'].predictions.pop(),v=>v.windows['3'].predictions[0].interval_start=v.generated_at,v=>v.windows['6'].predictions[0].predicted_occupancy=-1,v=>v.windows['12'].predictions[0].private='secret',v=>v.windows['24'].method='LastObservationPersistence',v=>v.freshness.source_age_seconds=0]) {const value=fiveMinuteForecast();mutate(value);assert.throws(()=>context.validateFiveMinuteForecast(value));}
+});
+test('v2 render exposes selected count, Istanbul labels and pointer/keyboard inspection', () => {
+  const nodes = new Map();
+  function node() { return {hidden:false,value:'0',children:[],attributes:{},setAttribute(k,v){this.attributes[k]=v;},append(...children){this.children.push(...children);},replaceChildren(...children){this.children=children;},querySelectorAll(){return [];},getBoundingClientRect(){return {left:0,width:720};}}; }
+  const document = {getElementById(id){if(!nodes.has(id))nodes.set(id,node());return nodes.get(id);},createElement:node,createElementNS:node,querySelectorAll(){return [];}};
+  const view = vm.createContext({document,Date,Intl,URL,AbortSignal,TextDecoder,Uint8Array,setInterval(){},fetch:async()=>{throw Error('offline');}});
+  vm.runInContext(source,view);
+  const data=fiveMinuteForecast();
+  for(const h of [1,3,6,12,24]){vm.runInContext(`selectedForecastHorizon=${h}`,view);view.renderFiveMinuteForecast(data);assert.equal(nodes.get('forecast-rows').children.length,h*12);assert.equal(nodes.get('forecast-output').hidden,false);}
+  nodes.get('forecast-point').value='1';nodes.get('forecast-point').oninput();assert(nodes.get('forecast-tooltip').textContent.includes('2/288'));
+  nodes.get('forecast-chart').onpointermove({clientX:670});assert(nodes.get('forecast-tooltip').textContent.includes('288/288'));
+  assert(nodes.get('forecast-headline').textContent.includes('kişi'));
+});

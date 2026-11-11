@@ -1,5 +1,4 @@
 'use strict';
-const MAX_CAPACITY = 4500; // Configured estimate, not a verified physical capacity.
 const STALE_MS = 30 * 60 * 1000; // Allows a 15-minute publication cycle plus deployment delay.
 const ROOM_LABELS = { arastirma_salonu: 'Araştırma', arastirma_salonu_sag: 'Araştırma sağ', arastirma_salonu_sol: 'Araştırma sol', nadir_eserler_salonu: 'Nadir eserler' };
 let observation = null;
@@ -32,7 +31,7 @@ function renderStatus() {
 }
 function render() {
   el('occupancy').textContent = observation.total_count.toLocaleString('tr-TR') + ' kişi';
-  el('percentage').textContent = '%' + (observation.total_count / MAX_CAPACITY * 100).toLocaleString('tr-TR', { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + ' · 4.500 kişilik kapasite tahminine göre (doğrulanmamış)';
+  el('percentage').textContent = 'Son yayımlanan gözlem · kişi sayısı';
   el('last-updated').textContent = 'Son gözlem: ' + new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(observation.observed_at)) + ' (İstanbul)';
   el('last-updated').dateTime = observation.observed_at;
   renderStatus();

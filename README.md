@@ -74,3 +74,36 @@ reads actual generated artifacts from `../runtime/phase4c-candidate` (override
 the current candidate's unavailable forecast. Both check root and project hosting,
 accessibility and browser errors, and save screenshots outside this repository in
 `../runtime/phase4c-frontend-qa`. Neither publishes data.
+
+### Five-minute forecast UI (v2)
+
+The static page first requests `data/v1/forecast-5min.json`, whose payload is
+version 2. `mk-platform/scripts/sync_public_contracts.py` owns its schema and
+embedded `PUBLIC_DTO_V2`; do not hand-edit generated definitions. A 404 falls
+back to the original hourly artifact; malformed/incompatible v2 fails closed.
+Current occupancy and historical hourly Arena load independently.
+
+For v2 each horizon contains 12/36/72/144/288 points or an explicit unavailable
+state. Target timestamps are the strictly next UTC five-minute boundary and
+subsequent boundaries; labels use Europe/Istanbul. Straight chart segments are
+visual connections, not inferred intermediate measurements. The padded Y axis
+includes the source observation and can start above zero. Hover/pointer movement
+and a keyboard/touch range control inspect individual values. All target values
+remain available in a collapsed table. Persistence is shown flat and explained;
+no uncertainty or production accuracy is invented. The unverified capacity
+percentage was removed. Historical hourly evaluation stays separate from live
+tracking, with model versions and protocol details collapsed.
+
+Validation: `node --test qa/forecasts.test.cjs qa/frontend.test.cjs` (20 passed).
+`QA_PLAYWRIGHT=/path/to/playwright node qa/five-minute-browser.cjs` exercises
+375/768/1440px, horizons, keyboard/pointer inspection, overflow and failure
+isolation using synthetic fixtures. Browser execution in this macOS sandbox is
+blocked by Chromium MachPort bootstrap permission denial; responsive layout,
+physical touch, screen readers and visual screenshots are **not verified**.
+
+Deploy backend contract/publisher support and the companion infra exact-route
+allowlists before enabling v2 publication; frontend may deploy first because it
+retains v1 fallback. Keep existing current.json and hourly artifacts throughout.
+Rollback the frontend static snapshot and disable new forecast publication;
+retain old artifacts and tracking records. No database downgrade is needed.
+No production deployment was performed.
