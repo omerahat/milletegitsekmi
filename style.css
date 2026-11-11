@@ -68,3 +68,26 @@ meter::-moz-meter-bar { background: #77b5ff; border-radius: 6px; }
   .upcoming-grid { grid-template-columns: 1fr; }
   .chart { padding: 1rem; }
 }
+
+.forecast-grid { display: grid; gap: 1.25rem; margin-top: 1.25rem; }
+.forecast-grid h2 { margin-block: .75rem; }
+#forecast-chart { display: block; width: 100%; height: auto; margin-block: 1rem; }
+#forecast-chart text { fill: var(--text-secondary); font-size: 14px; }
+#forecast-chart polyline { fill: none; stroke: var(--accent); stroke-width: 3; }
+.table-scroll { max-width: 100%; overflow-x: auto; margin-top: 1rem; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: .875rem; font-variant-numeric: tabular-nums; }
+caption { text-align: left; color: var(--text-secondary); padding-bottom: .5rem; }
+th, td { padding: .65rem; border-bottom: 1px solid var(--border); }
+th { color: var(--accent); }
+summary { cursor: pointer; padding-block: .75rem; }
+select { min-height: 44px; font: inherit; background: var(--bg-dark); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: .5rem; max-width: 100%; }
+#arena-horizon { margin-left: .5rem; }
+.forecast-grid ul { padding-left: 1.25rem; overflow-wrap: anywhere; }
+.forecast-grid p { overflow-wrap: anywhere; }
+
+.forecast-selector { display: flex; flex-wrap: wrap; gap: .35rem; margin: 1rem 0; }
+.forecast-selector button { flex: 1; min-width: 3.4rem; min-height: 44px; padding: .5rem; border: 1px solid currentColor; border-radius: .5rem; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.forecast-selector button[aria-pressed="true"] { background: var(--accent); color: var(--bg-dark); border-color: var(--accent); }
+.forecast-selector button:focus-visible { outline: 3px solid #bb7100; outline-offset: 3px; }
+.forecast-headline { font-size: clamp(1.25rem, 4vw, 1.9rem); font-weight: 700; }
+#forecast-chart circle { color: var(--accent); }

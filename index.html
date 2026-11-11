@@ -9,6 +9,7 @@
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./style.css">
   <script defer src="./app.js"></script>
+  <script defer src="./forecasts.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#today">Doluluk bilgisine geç</a>
@@ -44,9 +45,34 @@
       <p class="data-note">Salonlar toplam doluluğun tamamını kapsamayabilir. Çubuklar salonlardaki kişi sayılarını karşılaştırır; salon kapasitesini göstermez.</p>
       <p class="data-note">Her dakika yeni veri kontrol edilir; bu, yeni bir ölçüm yayımlandığı anlamına gelmez. Saatlik geçmiş henüz yayımlanmıyor.</p>
     </section>
-    <div class="upcoming-grid">
-      <section id="forecast" class="section unavailable" aria-labelledby="forecast-title"><span class="eyebrow">YAKINDA</span><h2 id="forecast-title">Doluluk tahminleri</h2><p>Henüz hiçbir ML modeli üretim kalite eşiğini geçmedi. Doğrulanmış tahminler hazır olduğunda burada gösterilecek.</p><p class="data-note">Şimdilik ziyaretinizi son gözlemi ve ölçüm zamanını dikkate alarak planlayabilirsiniz.</p></section>
-      <section id="arena" class="section unavailable" aria-labelledby="arena-title"><span class="eyebrow">HENÜZ KULLANILAMIYOR</span><h2 id="arena-title">Model Arenası</h2><p>Doğrulanmış model sonuçları henüz yayımlanmadı. Model karşılaştırma ve seçim sonuçlar hazır olduğunda açılacak.</p></section>
+    <div class="forecast-grid">
+      <section id="forecast" class="section" aria-labelledby="forecast-title">
+        <span class="badge status-warning">Deneysel tahmin</span><h2 id="forecast-title">Saatlik doluluk tahmini</h2>
+        <div class="forecast-selector" role="group" aria-label="Tahmin penceresi">
+          <button type="button" data-forecast-horizon="1" aria-pressed="false">1 Saat</button>
+          <button type="button" data-forecast-horizon="3" aria-pressed="false">3 Saat</button>
+          <button type="button" data-forecast-horizon="6" aria-pressed="true">6 Saat</button>
+          <button type="button" data-forecast-horizon="12" aria-pressed="false">12 Saat</button>
+          <button type="button" data-forecast-horizon="24" aria-pressed="false">24 Saat</button>
+        </div>
+        <p id="forecast-fallback" class="data-note"></p>
+        <p id="forecast-status" role="status" aria-live="polite">Tahmin yükleniyor…</p><p id="forecast-method" class="data-note"></p><p id="forecast-times" class="data-note"></p>
+        <div id="forecast-output" hidden>
+          <p id="forecast-headline" class="forecast-headline" hidden></p>
+          <p id="forecast-reference" class="data-note"></p>
+          <svg id="forecast-chart" viewBox="0 0 720 240" role="img" aria-labelledby="forecast-chart-title forecast-chart-description"><title id="forecast-chart-title">Saatlik deneysel doluluk tahmini</title><desc id="forecast-chart-description">Değerler aşağıdaki tabloda bulunur. Saatler İstanbul saatidir; saatlik aralıkların bitişini gösterir.</desc></svg>
+          <details open><summary>Saatlik değerleri göster</summary><div class="table-scroll" tabindex="0" role="region" aria-label="Saatlik tahmin tablosu"><table><caption>Saatlik aralık bitişleri · İstanbul</caption><thead><tr><th scope="col">Ufuk</th><th scope="col">Saat</th><th scope="col">Tahmini kişi</th></tr></thead><tbody id="forecast-rows"></tbody></table></div></details>
+        </div><ul id="forecast-warnings" class="data-note"></ul>
+        <p class="data-note">Üretim doğruluğu doğrulanmamıştır; güven aralığı yoktur. Yalnızca henüz başlamamış tam saatlik aralıklar gösterilir. Eski kayıtlar güncel tahmin değildir.</p>
+      </section>
+      <section id="arena" class="section" aria-labelledby="arena-title">
+        <p class="eyebrow">ÇEVRİMDIŞI DEĞERLENDİRME</p><h2 id="arena-title">Model Arenası</h2><p id="arena-status" role="status" aria-live="polite">Sonuçlar yükleniyor…</p>
+        <div id="arena-output" hidden>
+          <label for="arena-horizon">Değerlendirme ufku</label><select id="arena-horizon"><option value="overall">Tüm 24 saat</option><option value="1">1 saat</option><option value="6">6 saat</option><option value="12">12 saat</option><option value="24">24 saat</option></select>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Model karşılaştırması"><table><caption>Hata kişi sayısıdır; düşük değer daha iyidir.</caption><thead><tr><th scope="col">Model</th><th scope="col">MAE</th><th scope="col">RMSE</th><th scope="col">Örnek</th><th scope="col">Başlangıç modeline göre</th><th scope="col">Canlı kullanım</th></tr></thead><tbody id="arena-rows"></tbody></table></div>
+          <p id="arena-selection" class="data-note"></p><p id="arena-provenance" class="data-note"></p><div id="arena-online" class="data-note"></div><ul id="arena-warnings" class="data-note"></ul>
+        </div>
+      </section>
     </div>
   </main>
   <footer class="footer">Veri kaynağı: D16 gözlem kaydı · Saat dilimi: Europe/Istanbul</footer>

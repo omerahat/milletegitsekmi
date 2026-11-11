@@ -129,7 +129,7 @@ node -e "const source=require('fs').readFileSync('mk-platform/scripts/smoke-fron
   observations can still differ from actual occupancy; stale records remain labeled.
 - Capacity remains an unverified 4,500-person estimate. Room counts need not sum
   to the total. The UI makes both caveats explicit.
-- Forecast/history/model results remain unavailable as required.
+- Phase 4C now adds forecast readiness states and recorded Arena results; see ../README.md for current checks.
 
 ## Integration safeguards
 
