@@ -91,3 +91,30 @@ select { min-height: 44px; font: inherit; background: var(--bg-dark); color: var
 .forecast-selector button:focus-visible { outline: 3px solid #bb7100; outline-offset: 3px; }
 .forecast-headline { font-size: clamp(1.25rem, 4vw, 1.9rem); font-weight: 700; }
 #forecast-chart circle { color: var(--accent); }
+
+/* Forecast exploration shares the existing static asset pipeline. */
+body { background: radial-gradient(ellipse at 15% 0, #17243b 0, transparent 55%), var(--bg-dark); }
+.top-nav { padding-block: 2rem; }
+.top-nav h1 { letter-spacing: -.035em; font-size: 1.5rem; }
+.section { box-shadow: 0 12px 40px #0002; background: linear-gradient(135deg, #171e2b, #111620); border-color: #2a3547; }
+#today { border-top: 3px solid var(--accent); }
+.occupancy { font-size: clamp(3.5rem, 9vw, 6rem); }
+#today-title { color: var(--text-primary); }
+.forecast-selector { background: #0a111d; border-radius: 12px; padding: .35rem; }
+.forecast-selector button { border-color: transparent; font-weight: 600; }
+.forecast-selector button:hover { border-color: var(--accent); }
+.forecast-selector button:focus-visible { outline-color: var(--accent); }
+#forecast-point { width: 100%; min-height: 44px; accent-color: var(--accent); display: block; cursor: pointer; }
+#forecast-tooltip { display: block; min-height: 44px; padding: .5rem .75rem; border-radius: 8px; background: #0a111d; font-variant-numeric: tabular-nums; }
+#forecast-chart { background: #0a111d; border-radius: 12px; touch-action: pan-y; }
+summary { min-height: 44px; color: var(--accent); }
+#arena-online { padding: 1rem; background: #0a111d; border-radius: 12px; }
+#arena-rows td:first-child { font-weight: 600; }
+#arena-rows details { font-size: .75rem; max-width: 15rem; overflow-wrap: anywhere; font-weight: 400; }
+#arena-rows summary { font-size: .75rem; }
+@media (max-width: 600px) {
+  .forecast-selector { gap: .15rem; }
+  .forecast-selector button { font-size: .8125rem; padding-inline: .2rem; min-width: 2.8rem; }
+  .top-nav { padding-block: 1.25rem; }
+}
+@media (prefers-reduced-motion: no-preference) { button { transition: background-color .15s ease, border-color .15s ease; } }
